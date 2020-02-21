@@ -25,7 +25,6 @@ defmodule ElixirSnake.Scene.GameOver do
     graph =
       @graph
       |> Graph.modify(:gameover, &update_opts(&1, translate: position))
-      |> push_graph()
 
     state = %{
       graph: graph,
@@ -36,7 +35,7 @@ defmodule ElixirSnake.Scene.GameOver do
 
     Process.send_after(self(), :end_cooldown, 2000)
 
-    {:ok, state}
+    {:ok, state, [push: graph]}
   end
 
   # Prevent player from hitting any key instantly, starting a new game
@@ -53,9 +52,8 @@ defmodule ElixirSnake.Scene.GameOver do
           @text_opts
         )
       )
-      |> push_graph()
 
-    {:noreply, %{state | on_cooldown: false, graph: graph}}
+    {:noreply, %{state | on_cooldown: false, graph: graph}, [push: graph]}
   end
 
   # If cooldown has passed, we can restart the game.

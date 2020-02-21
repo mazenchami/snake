@@ -9,5 +9,6 @@ Clone the repository, and use `mix scenic.run` to run the game.
 # TODO
 
 - [ ] Leaderboard
+- [ ] Increase speed everytime score grows by X
 - [ ] macOS and/or Windows app
 - [ ] iOS and/or Android app

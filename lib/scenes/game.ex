@@ -62,9 +62,8 @@ defmodule ElixirSnake.Scene.Game do
     graph
     |> draw_game_objects(state.objects)
     |> draw_score(state.score)
-    |> push_graph()
 
-    {:ok, state}
+    {:ok, state, [push: graph]}
   end
 
   # A very simple frame counter. The game should run at roughly 30 fps, even though the snake doesn't refresh every frame by default.
@@ -76,9 +75,12 @@ defmodule ElixirSnake.Scene.Game do
         state
       end
 
-    state.graph |> draw_game_objects(state.objects) |> draw_score(state.score) |> push_graph()
+    graph =
+      state.graph
+      |> draw_game_objects(state.objects)
+      |> draw_score(state.score)
 
-    {:noreply, %{state | frame_count: frame_count + 1}}
+    {:noreply, %{state | frame_count: frame_count + 1}, [push: graph]}
   end
 
   # Keyboard controls
