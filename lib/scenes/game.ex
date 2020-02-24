@@ -52,7 +52,12 @@ defmodule ElixirSnake.Scene.Game do
         score: 0,
         # Game objects
         objects: %{
-          snake: %{body: [snake_start_coords], size: @snake_starting_size, direction: {1, 0}},
+          snake: %{
+            body: [snake_start_coords],
+            size: @snake_starting_size,
+            direction: {1, 0},
+            movement_delay: @snake_movement_delay
+          },
           pellet: nil
         }
       }
@@ -67,9 +72,12 @@ defmodule ElixirSnake.Scene.Game do
   end
 
   # A very simple frame counter. The game should run at roughly 30 fps, even though the snake doesn't refresh every frame by default.
-  def handle_info(:frame, %{frame_count: frame_count} = state) do
+  def handle_info(
+        :frame,
+        %{frame_count: frame_count, objects: %{snake: %{movement_delay: movement_delay}}} = state
+      ) do
     state =
-      if rem(frame_count, @snake_movement_delay) == 0 do
+      if rem(frame_count, movement_delay) == 0 do
         move_snake(state)
       else
         state
@@ -138,6 +146,7 @@ defmodule ElixirSnake.Scene.Game do
     |> randomize_pellet()
     |> add_score(@pellet_score)
     |> grow_snake()
+    |> increase_speed()
   end
 
   # No pellet in sight. :(
@@ -178,6 +187,17 @@ defmodule ElixirSnake.Scene.Game do
   # Increments the snake size.
   defp grow_snake(state) do
     update_in(state, [:objects, :snake, :size], &(&1 + 1))
+  end
+
+  # Increase the speed of the snake
+  defp increase_speed(
+         state = %{score: score, objects: %{snake: %{movement_delay: movement_delay}}}
+       ) do
+    if rem(score, 1000) == 0 && score != 0 && movement_delay != 1 do
+      update_in(state, [:objects, :snake, :movement_delay], &(&1 - 1))
+    else
+      state
+    end
   end
 
   # Iterates over the object map, rendering each object
